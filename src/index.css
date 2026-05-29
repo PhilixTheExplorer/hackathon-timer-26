@@ -1,0 +1,358 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   SIT Hackathon Timer — theme + component styles (ported from prototype)
+========================================================================= */
+
+  :root {
+    --green: oklch(0.86 0.21 150);
+    --cyan: oklch(0.82 0.15 205);
+    --amber: oklch(0.83 0.17 80);
+    --red: oklch(0.66 0.25 27);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #000; overflow: hidden; }
+  body { font-family: "Chakra Petch", system-ui, sans-serif; }
+  #root { height: 100%; }
+
+  /* =========================================================================
+     STAGE + THEME TOKENS
+  ========================================================================= */
+  .stage {
+    position: relative;
+    height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    padding: clamp(18px, 2.4vw, 40px) clamp(22px, 3.4vw, 64px);
+    gap: clamp(8px, 1.4vh, 20px);
+    overflow: hidden;
+    color: var(--fg);
+    background: var(--bg);
+    transition: background 0.6s ease, color 0.4s ease;
+    isolation: isolate;
+  }
+  /* phosphor field */
+  .stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(120% 90% at 50% 38%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 60%),
+      radial-gradient(140% 120% at 50% 120%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 55%);
+    transition: background 0.6s ease;
+  }
+
+  .theme-terminal {
+    --bg: #020503; --fg: color-mix(in oklab, var(--green) 80%, white);
+    --muted: color-mix(in oklab, var(--green) 45%, #0a0f0a);
+    --accent: var(--green);
+    --card-bg: linear-gradient(180deg, #07120a, #030805);
+    --card-line: color-mix(in oklab, var(--green) 22%, transparent);
+    --digit-font: "VT323", monospace;
+    --ui-font: "Share Tech Mono", monospace;
+    --title-font: "Share Tech Mono", monospace;
+  }
+  .theme-reactor {
+    --bg: #060403; --fg: color-mix(in oklab, var(--accent) 78%, white);
+    --muted: color-mix(in oklab, var(--accent) 42%, #100a06);
+    --accent: var(--green);
+    --card-bg: linear-gradient(180deg, #14100a, #080603);
+    --card-line: color-mix(in oklab, var(--accent) 26%, transparent);
+    --digit-font: "Share Tech Mono", monospace;
+    --ui-font: "Share Tech Mono", monospace;
+    --title-font: "Share Tech Mono", monospace;
+  }
+  .theme-signal {
+    --bg: #01040a; --fg: color-mix(in oklab, var(--accent) 70%, white);
+    --muted: color-mix(in oklab, var(--accent) 45%, #06101a);
+    --accent: var(--cyan);
+    --card-bg: linear-gradient(180deg, #06141f, #020812);
+    --card-line: color-mix(in oklab, var(--accent) 30%, transparent);
+    --digit-font: "Orbitron", sans-serif;
+    --ui-font: "Chakra Petch", sans-serif;
+    --title-font: "Orbitron", sans-serif;
+  }
+  /* phase overrides (apply regardless of theme) */
+  .phase-urgent { --accent: var(--amber); --fg: color-mix(in oklab, var(--amber) 80%, white); }
+  .phase-alarm  { --accent: var(--red);   --fg: color-mix(in oklab, var(--red) 82%, white); }
+  .phase-timesup{ --accent: var(--red);   --fg: color-mix(in oklab, var(--red) 88%, white); }
+
+  /* =========================================================================
+     TOP BAR
+  ========================================================================= */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--ui-font);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark {
+    color: var(--accent); font-size: clamp(16px, 1.4vw, 22px);
+    text-shadow: 0 0 14px var(--accent);
+    animation: markPulse 3s ease-in-out infinite;
+  }
+  @keyframes markPulse { 50% { opacity: 0.5; } }
+  .brand-org { color: var(--muted); font-size: clamp(11px, 0.95vw, 15px); letter-spacing: 0.18em; white-space: nowrap; }
+  .status { display: flex; align-items: center; gap: 12px; }
+  .status-text { color: var(--accent); font-size: clamp(11px, 0.95vw, 15px); letter-spacing: 0.2em; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  .dot-alarm, .dot-timesup { animation: blink 0.7s steps(1) infinite; }
+  .dot-urgent { animation: blink 1.4s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0.15; } }
+
+  /* =========================================================================
+     CENTER
+  ========================================================================= */
+  .center {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(14px, 2.6vh, 34px);
+    min-height: 0;
+  }
+  .title-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .event-title {
+    font-family: var(--title-font);
+    font-weight: 900;
+    font-size: clamp(30px, 4.4vw, 76px);
+    letter-spacing: 0.12em;
+    color: var(--fg);
+    white-space: nowrap;
+    text-shadow: 0 0 26px color-mix(in oklab, var(--accent) 70%, transparent),
+                 0 0 60px color-mix(in oklab, var(--accent) 40%, transparent);
+    line-height: 1;
+  }
+  .event-year {
+    font-family: var(--title-font);
+    font-size: clamp(20px, 2.6vw, 44px);
+    letter-spacing: 0.4em;
+    color: var(--accent);
+    text-shadow: 0 0 24px var(--accent);
+    margin-top: 4px;
+  }
+  .countdown-label {
+    font-family: var(--ui-font);
+    text-transform: uppercase;
+    letter-spacing: 0.42em;
+    font-size: clamp(10px, 0.95vw, 14px);
+    color: var(--muted);
+    padding-left: 0.42em;
+    white-space: nowrap;
+  }
+
+  /* =========================================================================
+     FLIP CLOCK
+  ========================================================================= */
+  .clock { display: flex; align-items: flex-start; gap: clamp(6px, 1vw, 18px); }
+  .unit { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.2vh, 16px); }
+  .digits { display: flex; gap: clamp(4px, 0.5vw, 9px); }
+  .unit-label {
+    font-family: var(--ui-font); text-transform: uppercase;
+    letter-spacing: 0.34em; font-size: clamp(9px, 0.85vw, 13px);
+    color: var(--muted); padding-left: 0.34em;
+  }
+  .sep {
+    font-family: var(--digit-font);
+    font-size: clamp(40px, 7vw, 120px);
+    color: var(--accent);
+    align-self: flex-start;
+    line-height: 1;
+    margin-top: clamp(8px, 1.6vh, 26px);
+    text-shadow: 0 0 20px var(--accent);
+    animation: sepBlink 1s steps(1) infinite;
+  }
+  @keyframes sepBlink { 50% { opacity: 0.25; } }
+
+  .fd {
+    --dh: clamp(78px, 11.5vw, 196px);
+    --dw: clamp(56px, 8.3vw, 142px);
+    --dfs: clamp(82px, 12.5vw, 210px);
+    position: relative;
+    width: var(--dw); height: var(--dh);
+    perspective: 600px;
+    border-radius: clamp(6px, 0.7vw, 14px);
+    filter: drop-shadow(0 0 22px color-mix(in oklab, var(--accent) 28%, transparent));
+  }
+  .fd-top, .fd-bottom, .fd-flip-top, .fd-flip-bottom {
+    position: absolute; left: 0; width: 100%; height: 50%;
+    overflow: hidden; background: var(--card-bg);
+    border: 1px solid var(--card-line);
+    backface-visibility: hidden;
+  }
+  .fd-top { top: 0; border-radius: clamp(6px,0.7vw,14px) clamp(6px,0.7vw,14px) 0 0; border-bottom: none; }
+  .fd-bottom { bottom: 0; border-radius: 0 0 clamp(6px,0.7vw,14px) clamp(6px,0.7vw,14px); border-top: 1px solid color-mix(in oklab, var(--accent) 14%, #000); }
+  .fd-top span, .fd-bottom span, .fd-flip-top span, .fd-flip-bottom span {
+    position: absolute; left: 0; width: 100%; height: var(--dh);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--digit-font); font-size: var(--dfs); line-height: 1;
+    color: var(--fg);
+    text-shadow: 0 0 18px color-mix(in oklab, var(--accent) 70%, transparent),
+                 0 0 46px color-mix(in oklab, var(--accent) 35%, transparent);
+  }
+  .fd-top span, .fd-flip-top span { top: 0; }
+  .fd-bottom span, .fd-flip-bottom span { bottom: 0; }
+  .fd-glare {
+    position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 18%, transparent 50%, rgba(0,0,0,0.28));
+  }
+  .fd-flip-top {
+    top: 0; transform-origin: bottom; z-index: 3;
+    border-radius: clamp(6px,0.7vw,14px) clamp(6px,0.7vw,14px) 0 0;
+    animation: flipTop 0.24s ease-in forwards;
+  }
+  .fd-flip-bottom {
+    bottom: 0; transform-origin: top; transform: rotateX(90deg); z-index: 3;
+    border-radius: 0 0 clamp(6px,0.7vw,14px) clamp(6px,0.7vw,14px);
+    animation: flipBottom 0.24s 0.24s ease-out forwards;
+  }
+  @keyframes flipTop { to { transform: rotateX(-90deg); } }
+  @keyframes flipBottom { to { transform: rotateX(0deg); } }
+
+  /* reactor hazard stripe */
+  .theme-reactor .fd-top { border-top: 3px solid transparent;
+    border-image: repeating-linear-gradient(45deg, var(--accent) 0 7px, #0000 7px 14px) 3; }
+
+  /* signal RGB micro-split on digits */
+  .theme-signal .fd-top span, .theme-signal .fd-bottom span {
+    text-shadow: 1px 0 0 color-mix(in oklab, var(--red) 55%, transparent),
+                 -1px 0 0 color-mix(in oklab, var(--cyan) 70%, transparent),
+                 0 0 22px color-mix(in oklab, var(--accent) 70%, transparent);
+  }
+
+  /* =========================================================================
+     MILESTONES
+  ========================================================================= */
+  .milestones { padding: clamp(10px, 2vh, 26px) clamp(10px, 4vw, 70px) 0; }
+  .track { position: relative; }
+  .track-line {
+    position: relative; height: 3px; border-radius: 2px;
+    background: color-mix(in oklab, var(--accent) 16%, #000);
+  }
+  .track-fill {
+    position: absolute; left: 0; top: 0; height: 100%; border-radius: 2px;
+    background: var(--accent); box-shadow: 0 0 14px var(--accent);
+    transition: width 0.6s ease;
+  }
+  .track-head {
+    position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%;
+    transform: translate(-50%, -50%); background: var(--accent);
+    box-shadow: 0 0 18px var(--accent); transition: left 0.6s ease;
+  }
+  .track-nodes { position: relative; height: 56px; margin-top: 4px; }
+  .node { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .node.edge-start .node-label { transform: translateX(calc(50% - 5px)); align-items: flex-start; }
+  .node.edge-end .node-label { transform: translateX(calc(-50% + 5px)); align-items: flex-end; }
+  .node-dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    background: #000; border: 2px solid color-mix(in oklab, var(--accent) 35%, #000);
+  }
+  .node.passed .node-dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  .node.active .node-dot { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 30%, transparent), 0 0 16px var(--accent); }
+  .node-label { display: flex; flex-direction: column; align-items: center; font-family: var(--ui-font); white-space: nowrap; }
+  .node-name { font-size: clamp(8px, 0.78vw, 12px); letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; }
+  .node.passed .node-name { color: var(--fg); }
+  .node.active .node-name { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+  .node-time { font-size: clamp(8px, 0.72vw, 11px); color: color-mix(in oklab, var(--muted) 80%, #000); letter-spacing: 0.05em; }
+
+  /* =========================================================================
+     FOOTER
+  ========================================================================= */
+  .footer {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--ui-font); text-transform: uppercase; letter-spacing: 0.18em;
+    border-top: 1px solid color-mix(in oklab, var(--accent) 14%, transparent);
+    padding-top: clamp(10px, 1.4vh, 18px);
+  }
+  .foot-left { display: flex; align-items: baseline; gap: clamp(14px, 1.5vw, 24px); }
+  .foot-key { color: #000; background: var(--accent); padding: 2px 8px; border-radius: 3px; font-size: clamp(10px, 0.9vw, 13px); letter-spacing: 0.16em; box-shadow: 0 0 14px color-mix(in oklab, var(--accent) 60%, transparent); }
+  .foot-clock { font-family: var(--digit-font); font-size: clamp(18px, 1.8vw, 30px); color: var(--fg); letter-spacing: 0.08em; white-space: nowrap; margin-right: 6px; text-shadow: 0 0 16px color-mix(in oklab, var(--accent) 50%, transparent); }
+  .foot-tz { color: var(--muted); font-size: clamp(9px, 0.82vw, 12px); white-space: nowrap; }
+  .foot-right { display: flex; gap: 12px; }
+  .ctl {
+    font-family: var(--ui-font); text-transform: uppercase; letter-spacing: 0.16em;
+    font-size: clamp(9px, 0.85vw, 13px);
+    background: transparent; color: var(--muted);
+    border: 1px solid color-mix(in oklab, var(--accent) 24%, transparent);
+    padding: 8px 14px; border-radius: 4px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; transition: all 0.18s ease;
+  }
+  .ctl:hover { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 16px color-mix(in oklab, var(--accent) 35%, transparent); }
+  .ctl-ico { font-size: 1.1em; }
+
+  /* =========================================================================
+     TIME'S UP
+  ========================================================================= */
+  .timesup { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .timesup-title {
+    font-family: var(--digit-font); font-weight: 900;
+    font-size: clamp(56px, 12vw, 220px); letter-spacing: 0.04em; line-height: 0.9;
+    color: var(--fg);
+  }
+  .timesup-sub {
+    font-family: var(--ui-font); text-transform: uppercase; letter-spacing: 0.32em;
+    font-size: clamp(11px, 1.3vw, 20px); color: var(--accent); text-shadow: 0 0 16px var(--accent);
+  }
+
+  /* =========================================================================
+     GLITCH
+  ========================================================================= */
+  .glitch { position: relative; }
+  .phase-timesup .glitch::before, .phase-timesup .glitch::after,
+  .theme-signal .glitch::before, .theme-signal .glitch::after {
+    content: attr(data-text); position: absolute; inset: 0;
+    clip-path: inset(0 0 0 0);
+  }
+  .phase-timesup .glitch::before, .theme-signal .glitch::before {
+    color: var(--cyan); transform: translate(-2px, 0); mix-blend-mode: screen;
+    animation: glitchA 2.4s infinite steps(2);
+  }
+  .phase-timesup .glitch::after, .theme-signal .glitch::after {
+    color: var(--red); transform: translate(2px, 0); mix-blend-mode: screen;
+    animation: glitchB 2.4s infinite steps(2);
+  }
+  .phase-timesup .glitch::before { animation-duration: 0.6s; }
+  .phase-timesup .glitch::after { animation-duration: 0.6s; }
+  @keyframes glitchA { 0%,100%{clip-path:inset(0 0 0 0);transform:translate(-2px,0)} 20%{clip-path:inset(20% 0 60% 0);transform:translate(-5px,0)} 40%{clip-path:inset(70% 0 10% 0);transform:translate(2px,0)} 60%{clip-path:inset(40% 0 40% 0);transform:translate(-3px,0)} }
+  @keyframes glitchB { 0%,100%{clip-path:inset(0 0 0 0);transform:translate(2px,0)} 25%{clip-path:inset(60% 0 20% 0);transform:translate(4px,0)} 55%{clip-path:inset(10% 0 70% 0);transform:translate(-2px,0)} 75%{clip-path:inset(50% 0 30% 0);transform:translate(3px,0)} }
+
+  /* =========================================================================
+     CRT OVERLAY
+  ========================================================================= */
+  .crt { position: absolute; inset: 0; pointer-events: none; z-index: 50; }
+  .crt-scan {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 2px, rgba(0,0,0,0.22) 2px 4px);
+    mix-blend-mode: multiply;
+  }
+  .crt-beam {
+    position: absolute; left: 0; right: 0; height: 22%;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.04), transparent);
+    animation: beam 7s linear infinite;
+  }
+  @keyframes beam { 0% { top: -25%; } 100% { top: 110%; } }
+  .crt-vignette {
+    position: absolute; inset: 0;
+    box-shadow: inset 0 0 18vw rgba(0,0,0,0.7);
+    background: radial-gradient(120% 120% at 50% 50%, transparent 55%, rgba(0,0,0,0.55));
+  }
+  .crt-flicker {
+    position: absolute; inset: 0; background: color-mix(in oklab, var(--accent) 4%, transparent);
+    animation: flicker 5s steps(1) infinite; opacity: 0;
+  }
+  @keyframes flicker { 0%,97%,100%{opacity:0} 97.5%{opacity:0.5} 98%{opacity:0} 98.5%{opacity:0.35} }
+
+  /* alarm-wide pulse */
+  .phase-alarm::after, .phase-timesup::after {
+    content: ""; position: absolute; inset: 0; z-index: 40; pointer-events: none;
+    box-shadow: inset 0 0 12vw color-mix(in oklab, var(--red) 40%, transparent);
+    animation: alarmPulse 0.9s ease-in-out infinite;
+  }
+  @keyframes alarmPulse { 0%,100%{opacity:0.25} 50%{opacity:0.8} }
+
+  /* sparkles */
+  .sparkles { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+  .sparkle { position: absolute; fill: var(--accent); filter: drop-shadow(0 0 8px var(--accent)); opacity: 0; animation: spark 3s ease-in-out infinite; }
+  @keyframes spark { 0%,100%{opacity:0;transform:scale(0.4) rotate(0deg)} 50%{opacity:0.9;transform:scale(1) rotate(35deg)} }
+
