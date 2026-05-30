@@ -47,6 +47,8 @@ function FlipUnit({ value, label, pad = 2 }) {
 }
 
 export default function FlipClock({ t, showDays }) {
+  const hours = showDays ? t.hours : Math.floor(t.total / 3600);
+
   return (
     <div className="clock">
       {showDays && (
@@ -55,7 +57,7 @@ export default function FlipClock({ t, showDays }) {
           <div className="sep">:</div>
         </>
       )}
-      <FlipUnit value={t.hours} label="HOURS" />
+      <FlipUnit value={hours} label="HOURS" />
       <div className="sep">:</div>
       <FlipUnit value={t.minutes} label="MINUTES" />
       <div className="sep">:</div>
