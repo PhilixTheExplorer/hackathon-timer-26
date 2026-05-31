@@ -77,6 +77,7 @@
   }
   /* phase overrides (apply regardless of theme) */
   .phase-urgent { --accent: var(--amber); --fg: color-mix(in oklab, var(--amber) 80%, white); }
+  .phase-emergency,
   .phase-alarm  { --accent: var(--red);   --fg: color-mix(in oklab, var(--red) 82%, white); }
   .phase-timesup{ --accent: var(--red);   --fg: color-mix(in oklab, var(--red) 88%, white); }
 
@@ -101,6 +102,7 @@
   .status-text { color: var(--accent); font-size: clamp(11px, 0.95vw, 15px); letter-spacing: 0.2em; }
   .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
   .dot-alarm, .dot-timesup { animation: blink 0.7s steps(1) infinite; }
+  .dot-emergency,
   .dot-urgent { animation: blink 1.4s steps(1) infinite; }
   @keyframes blink { 50% { opacity: 0.15; } }
 
@@ -355,4 +357,3 @@
   .sparkles { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
   .sparkle { position: absolute; fill: var(--accent); filter: drop-shadow(0 0 8px var(--accent)); opacity: 0; animation: spark 3s ease-in-out infinite; }
   @keyframes spark { 0%,100%{opacity:0;transform:scale(0.4) rotate(0deg)} 50%{opacity:0.9;transform:scale(1) rotate(35deg)} }
-

@@ -9,6 +9,7 @@ const PHASE_LABEL = {
   prestart: "START SEQUENCE ARMED",
   calm: "SYSTEMS NOMINAL",
   urgent: "WARNING · TIME CRITICAL",
+  emergency: "EMERGENCY PERIOD",
   alarm: "CRITICAL · FINAL MINUTES",
   timesup: "DEADLINE BREACHED",
 };
@@ -23,7 +24,17 @@ export default function App() {
   const hasStarted = nowMs >= config.startMs;
   const targetMs = hasStarted ? config.endMs : config.startMs;
   const remainMs = targetMs - nowMs;
-  const phase = hasStarted ? phaseFor(remainMs) : "prestart";
+  const deadlinePhase = phaseFor(remainMs);
+  const emergencyMs = config.milestones.find(
+    (m) => m.label?.toLowerCase() === "emergency"
+  )?.time;
+  const inEmergency =
+    hasStarted && Number.isFinite(emergencyMs) && nowMs >= emergencyMs;
+  const phase = hasStarted
+    ? deadlinePhase === "calm" && inEmergency
+      ? "emergency"
+      : deadlinePhase
+    : "prestart";
   const bd = breakdown(remainMs);
 
   const bkk = useMemo(
